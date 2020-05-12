@@ -12,8 +12,47 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "debianVagrantVM"
-
+  
+	config.vm.define "boxpremierprojet" do |boxpremierprojet|
+		boxpremierprojet.vm.box = "debian/stretch64"
+		boxpremierprojet.vm.network "private_network", ip: "192.168.33.10"
+		boxpremierprojet.vm.hostname = "user"
+		boxpremierprojet.vm.synced_folder ".", "/vagrant", type: "nfs"
+		#BoxPremierProjet.vm.provider "docker" do |d|
+		#	d.image = "foo/bar"
+		#	d.build_dir = "."
+		#end
+		#config.vm.provision "ansible" do |ansible|
+		#	ansible.playbook = "playbook.yml"
+		#end
+		boxpremierprojet.vm.provision "shell", inline: <<-SHELL
+			sudo apt update -y
+			sudo apt install software-properties-common -y
+			sudo apt-add-repository --yes --update ppa:ansible/ansible
+			sudo apt install ansible -y
+			sudo apt install vim -y
+			#sudo apt install docker -y
+			sudo apt-get remove docker docker-engine docker.io containerd runc 
+			sudo apt-get update -y
+			sudo apt-get install -y \ apt-transport-https \ ca-certificates \ curl \ gnupg2 \ software-properties-common 
+			curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add - sudo add-apt-repository \
+			"deb [arch=amd64] https://download.docker.com/linux/debian \ buster \ stable" 
+			sudo apt-get update 
+			sudo apt-get install -y docker-ce docker-ce-cli containerd.io net-tools 
+			sudo update-alternatives --set iptables /usr/sbin/iptables-legacy 
+			sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy 
+			sudo update-alternatives --set arptables /usr/sbin/arptables-legacy 
+			sudo update-alternatives --set ebtables /usr/sbin/ebtables-legacy
+			sudo curl -L "https://github.com/docker/compose/releases/download/1.25.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose sudo chmod +x /usr/local/bin/docker-compose sudo touch /etc/fstab sudo usermod -aG docker \$$USER 
+		SHELL
+		
+		#boxpremierprojet.vm.provider "docker" do |d|
+		#	d.build_dir = "."
+		#end
+	end
+	
+	
+	
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.
@@ -56,6 +95,7 @@ Vagrant.configure("2") do |config|
   #   # Customize the amount of memory on the VM:
   #   vb.memory = "1024"
   # end
+  		
   #
   # View the documentation for the provider you are using for more
   # information on available options.
